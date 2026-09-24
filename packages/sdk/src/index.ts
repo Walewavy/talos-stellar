@@ -47,6 +47,17 @@ export {
   MAX_BODY_BYTES,
 } from "./errors.js";
 
+// ── Feature Detection ─────────────────────────────────────────────
+//
+// Provides backwards-compatible feature detection for SDK capabilities.
+// This allows consumers to safely check for the presence of specific
+// features without breaking on older versions or environments.
+export {
+  detectFeature,
+  FeatureFlags,
+  FeatureStatus,
+} from "./features.js";
+
 // ── Domain types ──────────────────────────────────────────────────
 
 export * from "./types.js";
