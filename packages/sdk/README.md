@@ -322,6 +322,56 @@ npm test
 
 Tests are implemented using Vitest and mock the global fetch function to avoid real network calls, ensuring fast and reliable test execution.
 
+### Deterministic chaos transport fixtures
+
+The `ChaosInjector` capability is safe to use in tests and CI because its
+behavior is pinned by a registry of named, reproducible scenarios with
+committed wire-level fixtures.
+
+```typescript
+import {
+  getChaosScenario,
+  planChaosScenario,
+  replayChaosScenario,
+  createSeededRandom,
+  ChaosInjector,
+  FaultType,
+} from '@talos-protocol/sdk';
+
+// Inspect the deterministic plan for a scenario (pure, no injection).
+const scenario = getChaosScenario('api-timeout-delay-then-throw')!;
+const plan = planChaosScenario(scenario);
+console.log(plan.calls[0].outcome); // "injected-delay-then-throw"
+
+// Replay it against a real injector — delays are instant by default.
+const result = await replayChaosScenario(scenario);
+console.log(result.totalDelayMs); // 100
+
+// Bring the same determinism to your own chaos setups.
+const injector = new ChaosInjector({ random: createSeededRandom(42) });
+injector.registerFault({ type: FaultType.NETWORK_DROP, probability: 0.5 });
+```
+
+Behavioral contract:
+
+- **Deterministic** — the same seed always produces the same injection
+  pattern, on any machine, Node version, or CI runner. The PRNG is pure JS
+  (`mulberry32`), so it works in Node, edge runtimes, and browsers alike.
+- **Explicit errors** — malformed fault configs fail loudly at registration
+  time with `TypeError`/`RangeError` (unknown fault types, non-finite or
+  out-of-range probabilities, negative durations). Previously these registered
+  silently and never fired.
+- **Boundary-pinned** — committed scenarios pin that probability `0` never
+  injects, `1` always injects, and a draw exactly equal to the probability
+  does **not** inject (strict `r < p`).
+- **Privacy-safe** — plans, replays, and the committed fixture
+  (`tests/fixtures/chaos-scenarios.json`) contain scenario names, seeds,
+  draws, and outcome labels only. Fault messages, request payloads,
+  credentials, and payment proofs are never logged, serialized, or returned.
+
+Keep the fixture in sync: `npm run fixtures:gen` regenerates it from the built
+ESM dist and `npm run fixtures:check` (wired into CI) fails on drift.
+
 ## API Reference
 
 ### Talos Management

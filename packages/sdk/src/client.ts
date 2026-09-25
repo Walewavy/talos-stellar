@@ -959,6 +959,7 @@ export class TalosClient {
       body: JSON.stringify(params),
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
@@ -978,6 +979,7 @@ export class TalosClient {
       body: JSON.stringify(params),
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
@@ -997,6 +999,7 @@ export class TalosClient {
       body: JSON.stringify(params),
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
@@ -1049,6 +1052,7 @@ export class TalosClient {
       headers: { "X-PAYMENT": params.paymentHeader },
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
@@ -1260,6 +1264,7 @@ export class TalosClient {
       body: JSON.stringify(params),
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
@@ -1286,6 +1291,7 @@ export class TalosClient {
       body: JSON.stringify({ result }),
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
@@ -1324,6 +1330,7 @@ export class TalosClient {
       body: JSON.stringify(params),
       idempotencyKey: options?.idempotencyKey,
       signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 }
