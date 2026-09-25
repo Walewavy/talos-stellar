@@ -242,7 +242,12 @@ await TalosWebhook.verify({
 ### Stellar Helpers
 
 ```typescript
-import { generateKeypair, isValidPublicKey } from '@talos-protocol/sdk';
+import {
+  generateKeypair,
+  isValidPublicKey,
+  resolveNetworkConfig,
+  NETWORK_PASSPHRASES,
+} from '@talos-protocol/sdk';
 
 const { publicKey, secret } = generateKeypair();
 console.log("New Stellar Address:", publicKey);
@@ -250,7 +255,17 @@ console.log("New Stellar Address:", publicKey);
 if (isValidPublicKey(publicKey)) {
   console.log("Address is valid!");
 }
+
+// Bind the client to a known Stellar network (optional; omit for unbound).
+const network = resolveNetworkConfig({ network: "testnet" });
+// → { network: "testnet", networkPassphrase: NETWORK_PASSPHRASES.testnet }
 ```
+
+`TalosClient` accepts optional `network` / `networkPassphrase`. Either alone is
+enough; when both are set they must agree. Unknown ids, unrecognized passphrases,
+and mismatched pairs fail fast with privacy-safe `TypeError` / `RangeError`.
+Inspect the binding with `client.getNetworkConfig()`. When bound, x402 purchase
+challenges whose `network` field disagrees are rejected.
 
 ### Pluggable request signing
 
@@ -432,6 +447,8 @@ and attempt counts are hard-capped at 8. Inspect the effective policy with
 const client = new TalosClient({
   baseUrl: "https://talos-stellar.vercel.app",
   apiKey: process.env.TALOS_KEY!,
+  network: "testnet",                    // optional Stellar network binding
+  // networkPassphrase: NETWORK_PASSPHRASES.testnet,
   timeoutMs: 30_000,                     // per-request AbortController timeout
   retryPolicy: {
     maxAttempts: 3,                      // status-code policy (default on)
